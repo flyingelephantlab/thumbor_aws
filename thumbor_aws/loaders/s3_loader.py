@@ -2,10 +2,14 @@
 
 from boto.s3.bucket import Bucket
 from boto.s3.key import Key
+
 import urllib2
+
+from tornado.concurrent import return_future
 
 import thumbor_aws.connection
 import thumbor.loaders.http_loader as http_loader
+
 
 def _get_bucket(url):
     """
@@ -18,27 +22,28 @@ def _get_bucket(url):
     bucket_path = "/".join(url_by_piece[1:])
     return bucket_name, bucket_path
 
-def _validate_bucket(context,bucket):
+
+def _validate_bucket(context, bucket):
     if not context.config.S3_ALLOWED_BUCKETS:
         return True
 
     for allowed in context.config.S3_ALLOWED_BUCKETS:
-        #s3 is case sensitive
+        # s3 is case sensitive
         if allowed == bucket:
             return True
 
     return False
 
 
+@return_future
 def load(context, url, callback):
-    
     enable_http_loader = context.config.get('AWS_ENABLE_HTTP_LOADER', default=False)
 
     if enable_http_loader and 'http' in url:
         return http_loader.load(context, url, callback)
-      
+
     url = urllib2.unquote(url)
-    
+
     if context.config.S3_LOADER_BUCKET:
         bucket = context.config.S3_LOADER_BUCKET
     else:

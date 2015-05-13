@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import calendar
 from datetime import datetime, timedelta
@@ -14,8 +14,8 @@ from dateutil.parser import parse as parse_ts
 
 import thumbor_aws.connection
 
-class Storage(BaseStorage):
 
+class Storage(BaseStorage):
     @property
     def is_auto_webp(self):
         return self.context.config.AUTO_WEBP and self.context.request.accepts_webp
@@ -32,13 +32,13 @@ class Storage(BaseStorage):
 
     def put(self, bytes):
         file_abspath = self.normalize_path(self.context.request.url)
-        file_key=Key(self.storage)
+        file_key = Key(self.storage)
         file_key.key = file_abspath
 
         file_key.set_contents_from_string(bytes,
-            encrypt_key = self.context.config.get('S3_STORAGE_SSE', default=False),
-            reduced_redundancy = self.context.config.get('S3_STORAGE_RRS', default=False)
-        )
+                                          encrypt_key=self.context.config.get('S3_STORAGE_SSE', default=False),
+                                          reduced_redundancy=self.context.config.get('S3_STORAGE_RRS', default=False)
+                                          )
 
     def get(self):
         file_abspath = self.normalize_path(self.context.request.url)
@@ -77,7 +77,7 @@ class Storage(BaseStorage):
 
         return self.utc_to_local(parse_ts(file_key.last_modified))
 
-    def utc_to_local(self,utc_dt):
+    def utc_to_local(self, utc_dt):
         # get integer timestamp to avoid precision lost
         timestamp = calendar.timegm(utc_dt.timetuple())
         local_dt = datetime.fromtimestamp(timestamp)
