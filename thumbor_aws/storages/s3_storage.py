@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import calendar
 from datetime import datetime, timedelta
@@ -16,9 +16,8 @@ from dateutil.parser import parse as parse_ts
 
 import thumbor_aws.connection
 
+
 class Storage(BaseStorage):
-
-
     def __init__(self, context):
         BaseStorage.__init__(self, context)
         self.storage = self.__get_s3_bucket()
@@ -32,13 +31,13 @@ class Storage(BaseStorage):
     def put(self, path, bytes):
         file_abspath = self.normalize_path(path)
 
-        file_key=Key(self.storage)
+        file_key = Key(self.storage)
         file_key.key = file_abspath
 
         file_key.set_contents_from_string(bytes,
-            encrypt_key = self.context.config.get('S3_STORAGE_SSE', default=False),
-            reduced_redundancy = self.context.config.get('S3_STORAGE_RRS', default=False)
-        )
+                                          encrypt_key=self.context.config.get('S3_STORAGE_SSE', default=False),
+                                          reduced_redundancy=self.context.config.get('S3_STORAGE_RRS', default=False)
+                                          )
 
         return path
 
@@ -53,13 +52,13 @@ class Storage(BaseStorage):
 
         crypto_path = '%s.txt' % splitext(file_abspath)[0]
 
-        file_key=Key(self.storage)
+        file_key = Key(self.storage)
         file_key.key = crypto_path
 
         file_key.set_contents_from_string(self.context.server.security_key,
-            encrypt_key = self.context.config.get('S3_STORAGE_SSE', default=False),
-            reduced_redundancy = self.context.config.get('S3_STORAGE_RRS', default=False)
-        )
+                                          encrypt_key=self.context.config.get('S3_STORAGE_SSE', default=False),
+                                          reduced_redundancy=self.context.config.get('S3_STORAGE_RRS', default=False)
+                                          )
 
         return crypto_path
 
@@ -68,13 +67,13 @@ class Storage(BaseStorage):
 
         path = '%s.detectors.txt' % splitext(file_abspath)[0]
 
-        file_key=Key(self.storage)
+        file_key = Key(self.storage)
         file_key.key = path
 
         file_key.set_contents_from_string(dumps(data),
-            encrypt_key = self.context.config.get('S3_STORAGE_SSE', default=False),
-            reduced_redundancy = self.context.config.get('S3_STORAGE_RRS', default=False)
-        )
+                                          encrypt_key=self.context.config.get('S3_STORAGE_SSE', default=False),
+                                          reduced_redundancy=self.context.config.get('S3_STORAGE_RRS', default=False)
+                                          )
 
         return path
 
@@ -120,20 +119,20 @@ class Storage(BaseStorage):
 
     def normalize_path(self, path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
-        return "thumbor/storage/"+digest
+        return "thumbor/storage/" + digest
 
     def is_expired(self, key):
         if key:
             expire_in_seconds = self.context.config.get('RESULT_STORAGE_EXPIRATION_SECONDS', None)
 
-            #Never expire
+            # Never expire
             if expire_in_seconds is None or expire_in_seconds == 0:
                 return False
 
             timediff = datetime.now() - self.utc_to_local(parse_ts(key.last_modified))
             return timediff.seconds > expire_in_seconds
         else:
-            #If our key is bad just say we're expired
+            # If our key is bad just say we're expired
             return True
 
     def remove(self, path):
