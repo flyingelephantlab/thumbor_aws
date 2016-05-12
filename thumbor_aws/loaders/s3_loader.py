@@ -44,7 +44,7 @@ def load(context, url, callback):
 
     url = urllib2.unquote(url)
 
-    if context.config.S3_LOADER_BUCKET:
+    if context.config.get('S3_LOADER_BUCKET'):
         bucket = context.config.S3_LOADER_BUCKET
     else:
         bucket, url = _get_bucket(url)
